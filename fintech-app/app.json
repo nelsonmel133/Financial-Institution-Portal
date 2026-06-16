@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "FRP — Financial Reporting Platform",
+    "slug": "fintech-reporting-platform",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0B1437"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.frp.financialreporting"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0B1437"
+      },
+      "package": "com.frp.financialreporting"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
