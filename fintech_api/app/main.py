@@ -79,9 +79,15 @@ def create_application() -> FastAPI:
 
     # ── CORS ──────────────────────────────────────────────────────────────────
     # Tighten allow_origins for production deployments
+    # ALLOWED_ORIGINS env var: comma-separated list of origins.
+    # Defaults to localhost dev origins. Set explicitly in production.
+    import os
+    raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8081")
+    allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"] if not settings.is_production else [],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
