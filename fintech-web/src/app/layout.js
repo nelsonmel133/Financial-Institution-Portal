@@ -1,7 +1,5 @@
 import "./globals.css";
-import { FinancialProvider } from "@/context/FinancialContext";
-import SidebarNavigation from "@/components/SidebarNavigation";
-import CurrencyConverterHeader from "@/components/CurrencyConverterHeader";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "Tendai Reporting Platform | Multi-Tenant Financial Console",
@@ -13,15 +11,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="bg-paper font-sans text-ink antialiased">
-        <FinancialProvider>
-          <div className="flex min-h-screen w-full">
-            <SidebarNavigation />
-            <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-              <CurrencyConverterHeader />
-              <main className="flex-1 overflow-x-hidden bg-paper">{children}</main>
-            </div>
-          </div>
-        </FinancialProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

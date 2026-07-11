@@ -11,8 +11,10 @@ import {
   ChevronsUpDown,
   Check,
   Landmark,
+  LogOut,
 } from "lucide-react";
 import { useFinancial } from "@/context/FinancialContext";
+import { useAuth } from "@/context/AuthContext";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard },
@@ -202,6 +204,8 @@ export function SidebarContent({ onNavigate }) {
         })}
       </nav>
 
+      <AccountFooter />
+
       <div className="border-t border-white/5 px-5 py-4">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
@@ -210,6 +214,48 @@ export function SidebarContent({ onNavigate }) {
           <p className="text-xs font-medium text-slate-400">Ledger sync active</p>
         </div>
         <p className="mt-1 text-[11px] text-slate-600">Bank-grade encryption \u00b7 SOC 2 aligned</p>
+      </div>
+    </div>
+  );
+}
+
+function AccountFooter() {
+  const { user, logout } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
+
+  if (!user) return null;
+
+  const label = user.displayName || user.email || "Signed in";
+  const initial = label.charAt(0).toUpperCase();
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    try {
+      await logout();
+    } finally {
+      setSigningOut(false);
+    }
+  }
+
+  return (
+    <div className="border-t border-white/5 px-5 py-3">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-navy-700 text-[11px] font-bold text-white">
+          {initial}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-semibold text-white">{label}</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={signingOut}
+          aria-label="Sign out"
+          title="Sign out"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-400 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   );
