@@ -12,6 +12,8 @@ import {
   Check,
   Landmark,
   LogOut,
+  ArrowRightLeft,
+  FileScan,
 } from "lucide-react";
 import { useFinancial } from "@/context/FinancialContext";
 import { useAuth } from "@/context/AuthContext";
@@ -20,6 +22,8 @@ const NAV_LINKS = [
   { href: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard },
   { href: "/compliance", label: "Compliance Command Center", icon: ShieldCheck },
   { href: "/ledger", label: "Retail Ledger", icon: ScrollText },
+  { href: "/converter", label: "Currency Converter", icon: ArrowRightLeft },
+  { href: "/statement", label: "Submit Statement", icon: FileScan },
 ];
 
 function complianceTone(score) {

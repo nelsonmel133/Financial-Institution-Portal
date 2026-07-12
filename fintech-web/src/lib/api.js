@@ -15,7 +15,10 @@
  * api.setToken(token) to load the token from your auth flow.
  */
 
+import { auth } from "@/lib/firebase";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 
 // Fixed user UUID for dev token issuance — replace with real auth in production.
 const DEV_USER_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
@@ -74,22 +77,39 @@ async function _authedRequest(tenantId, path, options = {}) {
 // ── Auth ────────────────────────────────────────────────────────────────────
 
 /**
- * Issues a dev JWT for the given frontend tenant slug.
+ * Issues a tenant-scoped backend JWT for the given frontend tenant slug.
  * Idempotent — won't re-fetch if a token is already cached.
+ *
+ * If a Firebase user is signed in, their ID token is verified server-side
+ * via POST /auth/firebase-token — this is the real auth path. If no
+ * Firebase user is present (shouldn't happen behind the app's auth guard,
+ * but keeps local/dev flexibility), falls back to the dev /auth/token
+ * endpoint, which the backend itself disables outside of
+ * ENVIRONMENT=development.
  */
 async function ensureToken(tenantSlug) {
   const tenantUUID = TENANT_IDS[tenantSlug];
   if (!tenantUUID) throw new Error(`Unknown tenant slug: ${tenantSlug}`);
   if (_tokens[tenantUUID]) return _tokens[tenantUUID];
 
-  const data = await _request("/api/v1/auth/token", {
-    method: "POST",
-    body: JSON.stringify({
-      tenant_id: tenantUUID,
-      user_id: DEV_USER_ID,
-      email: DEV_USER_EMAIL,
-    }),
-  });
+  const firebaseUser = auth.currentUser;
+
+  const data = firebaseUser
+    ? await _request("/api/v1/auth/firebase-token", {
+        method: "POST",
+        body: JSON.stringify({
+          id_token: await firebaseUser.getIdToken(),
+          tenant_id: tenantUUID,
+        }),
+      })
+    : await _request("/api/v1/auth/token", {
+        method: "POST",
+        body: JSON.stringify({
+          tenant_id: tenantUUID,
+          user_id: DEV_USER_ID,
+          email: DEV_USER_EMAIL,
+        }),
+      });
 
   _tokens[tenantUUID] = data.access_token;
   return data.access_token;
@@ -98,6 +118,11 @@ async function ensureToken(tenantSlug) {
 /** Load a pre-existing token (production path). */
 function setToken(tenantUUID, token) {
   _tokens[tenantUUID] = token;
+}
+
+/** Drops every cached backend JWT — call this on sign-out. */
+function clearTokens() {
+  for (const key of Object.keys(_tokens)) delete _tokens[key];
 }
 
 // ── Tenants ─────────────────────────────────────────────────────────────────
@@ -198,6 +223,7 @@ async function exchangeRates() {
 const api = {
   ensureToken,
   setToken,
+  clearTokens,
   listTenants,
   getTenantDashboard,
   listLedgerEntries,

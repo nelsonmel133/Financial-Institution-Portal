@@ -151,6 +151,34 @@ Response:
 }
 ```
 
+**Get a token (production — Firebase-authenticated frontend):**
+
+The frontend signs the user in with Firebase Auth, then exchanges the
+resulting ID token for a tenant-scoped backend JWT. The backend verifies
+the ID token server-side (signature, issuer, audience, expiry, revocation)
+against Firebase's public keys before minting anything — the client never
+gets to assert its own identity.
+
+```http
+POST /api/v1/auth/firebase-token
+Content-Type: application/json
+
+{
+  "id_token": "<Firebase ID token from firebase.auth().currentUser.getIdToken()>",
+  "tenant_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+Same `TokenResponse` shape as above. Requires `FIREBASE_PROJECT_ID` plus
+either `FIREBASE_CREDENTIALS_JSON` or `FIREBASE_CREDENTIALS_FILE` (or
+Application Default Credentials) — see `.env.example`.
+
+> **Known limitation:** this confirms the requested tenant exists and is
+> active, but there's no `user ↔ tenant` membership table yet, so any
+> authenticated Firebase user can request a token for any active
+> `tenant_id`. Add a membership table and check it here before relying on
+> this for real per-user tenant isolation.
+
 ---
 
 ### POST /api/v1/ledger/scan

@@ -290,6 +290,16 @@ class TokenRequest(BaseModel):
     email: str = Field(pattern=r"^[a-zA-Z0-9_.+\-]+@[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}$")
 
 
+class FirebaseTokenRequest(BaseModel):
+    """
+    Payload for exchanging a verified Firebase ID token for a tenant-scoped
+    backend JWT. The id_token is issued client-side by Firebase Auth after
+    sign-in and is verified server-side before any backend JWT is minted.
+    """
+    id_token: Annotated[str, StringConstraints(min_length=10, max_length=4096, strip_whitespace=True)]
+    tenant_id: uuid.UUID
+
+
 # ─── Scan Response ────────────────────────────────────────────────────────────
 
 class StatementScanResponse(BaseModel):

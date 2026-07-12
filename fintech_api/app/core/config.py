@@ -63,6 +63,26 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60, ge=5, le=1440)
 
+    # ─── Firebase Admin (server-side ID token verification) ────────────────────
+    # The frontend authenticates users with Firebase; the backend independently
+    # verifies each Firebase ID token (signature, issuer, audience, expiry,
+    # revocation) before trusting the caller's identity. Provide exactly one of
+    # FIREBASE_CREDENTIALS_JSON or FIREBASE_CREDENTIALS_FILE, or leave both
+    # unset to fall back to Application Default Credentials (e.g. on Cloud Run
+    # / GKE with an attached service account, or GOOGLE_APPLICATION_CREDENTIALS).
+    FIREBASE_PROJECT_ID: str | None = Field(
+        default=None,
+        description="Firebase project ID. Only needed if it can't be inferred from the credentials.",
+    )
+    FIREBASE_CREDENTIALS_JSON: SecretStr | None = Field(
+        default=None,
+        description="Full Firebase service-account JSON, inlined as a single-line string.",
+    )
+    FIREBASE_CREDENTIALS_FILE: str | None = Field(
+        default=None,
+        description="Path to a Firebase service-account JSON key file.",
+    )
+
     # ─── LLM / AI ──────────────────────────────────────────────────────────────
     LLM_PROVIDER: LLMProvider = LLMProvider.ANTHROPIC
     LLM_API_KEY: SecretStr = Field(

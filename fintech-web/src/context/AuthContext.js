@@ -22,6 +22,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import api from "@/lib/api";
 
 const AuthContext = createContext(undefined);
 
@@ -75,6 +76,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     await signOut(auth);
+    api.clearTokens();
   }, []);
 
   const resetPassword = useCallback(async (email) => {
